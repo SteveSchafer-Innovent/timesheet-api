@@ -1,0 +1,11 @@
+#!/bin/sh
+cd "$(dirname "$0")"
+ROOT=$(pwd)
+./stop
+# export JAVA_HOME="/usr/lib/jvm/java-11-openjdk"
+mkdir -p logs
+if ! mvn clean package > logs/build.log 2> logs/build.err.log; then
+	echo "build failed"
+	exit 1
+fi
+echo "success"

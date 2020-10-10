@@ -1,0 +1,3 @@
+#!/bin/sh
+cd $(dirname "$0")
+scp $(find target -name "*.jar") centos@mail3.stephenschafer.com:~
