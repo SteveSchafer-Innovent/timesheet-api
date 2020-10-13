@@ -11,7 +11,9 @@ public interface ProjectService {
 
 	List<FindProjectResult> findByRoot();
 
-	void delete(int id);
+	boolean canDelete(int id);
+
+	int delete(int id);
 
 	ProjectEntity findById(int id);
 }

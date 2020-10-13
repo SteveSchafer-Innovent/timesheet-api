@@ -94,6 +94,7 @@ public class EventServiceImpl implements EventService {
 		namedQuery.setParameter("eventId", Integer.valueOf(eventId));
 		@SuppressWarnings("unchecked")
 		final List<Integer> list = namedQuery.getResultList();
+		// named query returns a list of Integer in this case
 		return list;
 	}
 

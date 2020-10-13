@@ -106,9 +106,16 @@ public class EventDaoImpl implements EventDao {
 				holder.statement.cancel();
 			}
 			catch (final SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				log.error("getByDate failed", e1);
 			}
 		}
+	}
+
+	@Override
+	public Optional<Integer> countOfEventsByProject(final int id) {
+		final String sql = "select count(*) from event_project where project_id = ?";
+		return jdbcTemplate.queryForObject(sql, new Object[] { id }, (rs, rowNum) -> {
+			return Optional.of(rs.getInt(1));
+		});
 	}
 }

@@ -1,3 +1,5 @@
 #!/bin/sh
-cd $(dirname "$0")
+cd "$(dirname "${BASH_SOURCE[0]}")"
+ssh centos@mail3.stephenschafer.com "./stop"
 scp $(find target -name "*.jar") centos@mail3.stephenschafer.com:~
+ssh centos@mail3.stephenschafer.com "./run"
