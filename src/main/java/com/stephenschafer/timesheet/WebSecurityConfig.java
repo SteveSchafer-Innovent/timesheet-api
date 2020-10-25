@@ -44,14 +44,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(final HttpSecurity http) throws Exception {
 		// @formatter:off
-		http.cors().and().csrf().disable()
-			.authorizeRequests()
-			.antMatchers("/token/*", "/signup").permitAll()
-			.anyRequest().authenticated()
-			.and()
-			.exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
-			.and()
-			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+		http.cors().and().csrf().disable().authorizeRequests().antMatchers("/token/*",
+			"/signup").permitAll().anyRequest().authenticated().and().exceptionHandling().authenticationEntryPoint(
+				unauthorizedHandler).and().sessionManagement().sessionCreationPolicy(
+					SessionCreationPolicy.STATELESS);
 		// @formatter:on
 		http.addFilterBefore(authenticationTokenFilterBean(),
 			UsernamePasswordAuthenticationFilter.class);

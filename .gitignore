@@ -4,3 +4,4 @@ run-local
 .project
 .settings
 .classpath
+*.log
