@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.stephenschafer.timesheet.ApiResponse;
-import com.stephenschafer.timesheet.BadRequestException;
 import com.stephenschafer.timesheet.UserEntity;
 import com.stephenschafer.timesheet.UserService;
 
@@ -40,18 +39,12 @@ public class ReportController {
 	@ResponseBody
 	public ApiResponse<List<ReportSummaryRow>> getRows(
 			@PathVariable(required = true) final String dateString,
-			final HttpServletRequest request) {
+			final HttpServletRequest request) throws ParseException {
 		log.info("GET /report startDate=" + dateString);
 		final String username = (String) request.getAttribute("username");
 		final UserEntity user = userService.findByUsername(username);
 		final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-		final Date day;
-		try {
-			day = df.parse(dateString);
-		}
-		catch (final ParseException e) {
-			throw new BadRequestException("Bad date format", e);
-		}
+		final Date day = df.parse(dateString);
 		final ReportSummaryQuery query = reportSummaryQuery;
 		final Stream<ReportSummaryRow> stream = query.getStream(day, user.getId());
 		final List<ReportSummaryRow> list = stream.collect(Collectors.toList());

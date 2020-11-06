@@ -16,4 +16,6 @@ public interface ProjectService {
 	int delete(int id);
 
 	ProjectEntity findById(int id);
+
+	List<Integer> getAncestry(int id);
 }

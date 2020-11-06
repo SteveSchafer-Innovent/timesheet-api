@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class ProjectController {
 	@Autowired
-	ProjectService projectService;
+	private ProjectService projectService;
 
 	@PostMapping("/projects")
 	@ResponseBody
@@ -78,10 +78,18 @@ public class ProjectController {
 
 	@GetMapping("/project/{id}")
 	@ResponseBody
-	public ApiResponse<ProjectEntity> getProject(@PathVariable(required = true) final Integer id,
-			final HttpServletRequest request) {
+	public ApiResponse<ProjectEntity> getProject(@PathVariable(required = true) final Integer id) {
 		log.info("GET /project/" + id);
 		return new ApiResponse<>(HttpStatus.OK.value(), "Project fetched successfully.",
 				projectService.findById(id));
+	}
+
+	@GetMapping("/project/ancestry/{id}")
+	@ResponseBody
+	public ApiResponse<List<Integer>> getProjectAncestry(
+			@PathVariable(required = true) final Integer id) {
+		log.info("GET /project/ancestry/" + id);
+		return new ApiResponse<>(HttpStatus.OK.value(), "Project ancestry fetched successfully.",
+				projectService.getAncestry(id));
 	}
 }

@@ -140,4 +140,29 @@ public class ProjectServiceImpl implements ProjectService {
 		final Optional<ProjectEntity> optionalProjectEntity = projectDao.findById(id);
 		return optionalProjectEntity.isPresent() ? optionalProjectEntity.get() : null;
 	}
+
+	@Override
+	public List<Integer> getAncestry(final int id) {
+		log.info("getAncestry id = " + id);
+		final List<Integer> result = new ArrayList<>();
+		final Optional<ProjectEntity> optionalProjectEntity = projectDao.findById(id);
+		if (optionalProjectEntity.isPresent()) {
+			final ProjectEntity projectEntity = optionalProjectEntity.get();
+			if (projectEntity.parentId != null) {
+				addToAncestry(projectEntity.parentId, result);
+			}
+		}
+		return result;
+	}
+
+	private void addToAncestry(final Integer id, final List<Integer> list) {
+		final Optional<ProjectEntity> optionalProjectEntity = projectDao.findById(id);
+		if (optionalProjectEntity.isPresent()) {
+			final ProjectEntity projectEntity = optionalProjectEntity.get();
+			if (projectEntity.parentId != null) {
+				addToAncestry(projectEntity.parentId, list);
+			}
+			list.add(id);
+		}
+	}
 }

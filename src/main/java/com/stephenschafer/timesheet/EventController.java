@@ -92,18 +92,12 @@ public class EventController {
 	@ResponseBody
 	public ApiResponse<List<ReportEvent>> getEvents(
 			@PathVariable(required = true) final String dateString,
-			final HttpServletRequest request) {
+			final HttpServletRequest request) throws ParseException {
 		log.info("GET /events dateString=" + dateString);
 		final String username = (String) request.getAttribute("username");
 		final UserEntity user = userService.findByUsername(username);
 		final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-		final Date day;
-		try {
-			day = df.parse(dateString);
-		}
-		catch (final ParseException e) {
-			throw new BadRequestException("Bad date format", e);
-		}
+		final Date day = df.parse(dateString);
 		return new ApiResponse<>(HttpStatus.OK.value(), "Event list fetched successfully.",
 				eventService.findByDay(day, user.getId()));
 	}
