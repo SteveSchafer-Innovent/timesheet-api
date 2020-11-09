@@ -97,8 +97,10 @@ public class EventDaoImpl implements EventDao {
 		};
 		try {
 			jdbcTemplate.query(creator, rs -> {
-				consumer.accept(new Event(rs.getInt(1), rs.getTimestamp(2), rs.getInt(3),
-						rs.getInt(4), rs.getString(5)));
+				final Timestamp timestamp = rs.getTimestamp(2);
+				log.info("timestamp = " + timestamp);
+				consumer.accept(new Event(rs.getInt(1), timestamp, rs.getInt(3), rs.getInt(4),
+						rs.getString(5)));
 			});
 		}
 		catch (final StopException e) {
