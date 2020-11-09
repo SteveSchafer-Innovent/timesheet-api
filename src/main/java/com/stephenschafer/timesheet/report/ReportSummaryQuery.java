@@ -45,6 +45,12 @@ public class ReportSummaryQuery {
 		return removeTime(getCalendar(date)).getTime();
 	}
 
+	public static long addDays(final long longDate, final int days) {
+		final org.joda.time.DateTime date = new org.joda.time.DateTime(longDate);
+		final org.joda.time.DateTime newDate = date.plusDays(days);
+		return newDate.getMillis();
+	}
+
 	public static int getDateDiff(final long later, final long earlier) {
 		// note: dividing by 1000*60*60*24 has problems with daylight savings time
 		final org.joda.time.DateTime laterDate = new org.joda.time.DateTime(later);
@@ -92,7 +98,7 @@ public class ReportSummaryQuery {
 	public Stream<ReportSummaryRow> getStream(final Date startDate, final int userId) {
 		eventQuery.setArguments(new Object[] { startDate, Integer.valueOf(userId) });
 		this.start = startDate.getTime();
-		this.end = start + 1000L * 60L * 60L * 24L * 7L; // a week
+		this.end = addDays(start, 7); // start + 1000L * 60L * 60L * 24L * 7L; // a week
 		final AtomicBoolean oneExtra = new AtomicBoolean(false);
 		final EventHolder previousEventHolder = new EventHolder();
 		final Map<Integer, ResolvedProject> projects = new HashMap<>();
