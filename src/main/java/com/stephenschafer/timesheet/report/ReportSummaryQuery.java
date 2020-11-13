@@ -151,13 +151,14 @@ public class ReportSummaryQuery {
 		int maxDepth = 0;
 		try {
 			for (final Integer key : projects.keySet()) {
-				final ResolvedProject project = projects.get(key);
-				final List<ResolvedProject> path = project.getPath();
-				final List<String> projectCodes = new ArrayList<>();
+				final ResolvedProject resolvedProjects = projects.get(key);
+				final List<ResolvedProject> path = resolvedProjects.getPath();
+				final List<ReportSummaryProject> reportProjects = new ArrayList<>();
 				for (final ResolvedProject parentProject : path) {
-					projectCodes.add(parentProject.getCode());
+					reportProjects.add(
+						new ReportSummaryProject(parentProject.getId(), parentProject.getCode()));
 				}
-				final int depth = projectCodes.size();
+				final int depth = reportProjects.size();
 				if (maxDepth < depth) {
 					maxDepth = depth;
 				}
@@ -166,7 +167,7 @@ public class ReportSummaryQuery {
 				for (int i = 0; i < dateCount; i++) {
 					durations.add(Long.valueOf(0));
 				}
-				final Map<Date, Long> dateTotals = project.getDateTotals();
+				final Map<Date, Long> dateTotals = resolvedProjects.getDateTotals();
 				for (final Date date : dateTotals.keySet()) {
 					final Long value = dateTotals.get(date);
 					final int i = getDateDiff(date.getTime(), start);
@@ -177,7 +178,7 @@ public class ReportSummaryQuery {
 						log.info("Cannot set duration at index " + i);
 					}
 				}
-				final ReportSummaryRow row = new ReportSummaryRow(projectCodes, durations);
+				final ReportSummaryRow row = new ReportSummaryRow(reportProjects, durations);
 				list.add(row);
 			}
 		}

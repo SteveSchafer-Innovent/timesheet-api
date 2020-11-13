@@ -51,8 +51,7 @@ public class ProjectController {
 
 	@GetMapping("/project/canDelete/{id}")
 	@ResponseBody
-	public ApiResponse<Boolean> canDeleteProject(@PathVariable(required = true) final Integer id,
-			final HttpServletRequest request) {
+	public ApiResponse<Boolean> canDeleteProject(@PathVariable(required = true) final Integer id) {
 		log.info("GET /project/canDelete/" + id);
 		return new ApiResponse<>(HttpStatus.OK.value(), "Can delete project",
 				projectService.canDelete(id));

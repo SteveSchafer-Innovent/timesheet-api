@@ -6,12 +6,14 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 @AllArgsConstructor
 public class ReportSummaryRow implements Comparable<ReportSummaryRow> {
-	private final List<String> projects;
+	private final List<ReportSummaryProject> projects;
 	private final List<Long> durations;
 
 	public long getTotalDuration() {
@@ -24,14 +26,14 @@ public class ReportSummaryRow implements Comparable<ReportSummaryRow> {
 
 	@Override
 	public int compareTo(final ReportSummaryRow that) {
-		final Iterator<String> thisIter = this.projects.iterator();
-		final Iterator<String> thatIter = that.projects.iterator();
+		final Iterator<ReportSummaryProject> thisIter = this.projects.iterator();
+		final Iterator<ReportSummaryProject> thatIter = that.projects.iterator();
 		while (thisIter.hasNext()) {
 			if (!thatIter.hasNext()) {
 				return 1;
 			}
-			final String thisCode = thisIter.next();
-			final String thatCode = thatIter.next();
+			final String thisCode = thisIter.next().getCode();
+			final String thatCode = thatIter.next().getCode();
 			final int diff = thisCode.compareTo(thatCode);
 			if (diff != 0) {
 				return diff;
