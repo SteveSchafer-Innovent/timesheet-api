@@ -16,11 +16,6 @@ public class ReportConfig {
 	}
 
 	@Bean
-	public ReportSummaryQuery getReportSummaryQuery() {
-		return new ReportSummaryQuery();
-	}
-
-	@Bean
 	public RawProjectQuery getRawProjectQuery() {
 		return new RawProjectQuery();
 	}

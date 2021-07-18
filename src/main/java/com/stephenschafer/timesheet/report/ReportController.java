@@ -42,6 +42,8 @@ public class ReportController {
 	@Autowired
 	ReportSummaryQuery reportSummaryQuery;
 	@Autowired
+	ReportDetailQuery reportDetailQuery;
+	@Autowired
 	ProjectDateDao projectDateDao;
 
 	@GetMapping("/week/{dateString}")
@@ -57,6 +59,26 @@ public class ReportController {
 		final ReportSummaryQuery query = reportSummaryQuery;
 		final Stream<ReportSummaryRow> stream = query.getStream(day, user.getId());
 		final List<ReportSummaryRow> list = stream.collect(Collectors.toList());
+		return new ApiResponse<>(HttpStatus.OK.value(), "Success", list);
+	}
+
+	@GetMapping("/detail/{startDateString}/{endDateString}")
+	@ResponseBody
+	public ApiResponse<List<ReportDetailRow>> getDetailRows(
+			@PathVariable(required = true) final String startDateString,
+			@PathVariable(required = true) final String endDateString,
+			final HttpServletRequest request) throws ParseException {
+		log.info("GET /report/detail/" + startDateString + "/" + endDateString);
+		final String username = (String) request.getAttribute("username");
+		final UserEntity user = userService.findByUsername(username);
+		final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		final Date startDate = "none".equalsIgnoreCase(startDateString) ? null
+			: df.parse(startDateString);
+		final Date endDate = "none".equalsIgnoreCase(endDateString) ? null
+			: df.parse(endDateString);
+		final Stream<ReportDetailRow> stream = reportDetailQuery.getStream(startDate, endDate,
+			user.getId());
+		final List<ReportDetailRow> list = stream.collect(Collectors.toList());
 		return new ApiResponse<>(HttpStatus.OK.value(), "Success", list);
 	}
 

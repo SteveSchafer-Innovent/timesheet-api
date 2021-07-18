@@ -9,7 +9,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @AllArgsConstructor
-public class ReportSummaryProject {
+public class ReportProject {
 	private int id;
 	private String code;
 }

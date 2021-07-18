@@ -2,98 +2,28 @@ package com.stephenschafer.timesheet.report;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
-import org.joda.time.Days;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.stephenschafer.timesheet.EventRow;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ReportSummaryQuery {
+@Service
+public class ReportSummaryQuery extends ReportQuery {
 	@Autowired
 	private EventQuery eventQuery;
 	private long start;
 	private long end;
-
-	public static Calendar getCalendar(final Date date) {
-		final Calendar cal = new GregorianCalendar();
-		cal.setTime(date);
-		return cal;
-	}
-
-	public static Calendar removeTime(final Calendar cal) {
-		cal.set(Calendar.HOUR_OF_DAY, 0);
-		cal.set(Calendar.MINUTE, 0);
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MILLISECOND, 0);
-		return cal;
-	}
-
-	public static Date removeTime(final Date date) {
-		return removeTime(getCalendar(date)).getTime();
-	}
-
-	public static long addDays(final long longDate, final int days) {
-		final org.joda.time.DateTime date = new org.joda.time.DateTime(longDate);
-		final org.joda.time.DateTime newDate = date.plusDays(days);
-		return newDate.getMillis();
-	}
-
-	public static int getDateDiff(final long later, final long earlier) {
-		// note: dividing by 1000*60*60*24 has problems with daylight savings time
-		final org.joda.time.DateTime laterDate = new org.joda.time.DateTime(later);
-		final org.joda.time.DateTime earlierDate = new org.joda.time.DateTime(earlier);
-		final int days = Days.daysBetween(earlierDate, laterDate).getDays();
-		log.info(" days between " + earlierDate + " and " + laterDate + " = " + days);
-		return days;
-	}
-
-	@Autowired
-	private ProjectIdQuery projectIdQuery;
-
-	public ResolvedProjectList getProjectsForEvent(final int eventId) {
-		final List<ResolvedProject> resultList = new ArrayList<>();
-		projectIdQuery.setArguments(new Object[] { Integer.valueOf(eventId) });
-		projectIdQuery.getStream().forEach(projectIdInteger -> {
-			final ResolvedProject project = resolveProject(getProject(projectIdInteger.intValue()));
-			resultList.add(project);
-		});
-		return new ResolvedProjectList(resultList);
-	}
-
-	public ResolvedProject resolveProject(final RawProject rawProject) {
-		if (rawProject == null) {
-			return null;
-		}
-		final ResolvedProject parent = rawProject.isRoot() ? null
-			: resolveProject(getProject(rawProject.getParentId()));
-		return new ResolvedProject(rawProject.getId(), parent, rawProject.getCode());
-	}
-
-	@Autowired
-	private RawProjectQuery rawProjectQuery;
-
-	public RawProject getProject(final int projectId) {
-		rawProjectQuery.setProjectId(projectId);
-		final Optional<RawProject> result = rawProjectQuery.getStream().findFirst();
-		return result.orElse(null);
-	}
-
-	private static class EventHolder {
-		EventRow event = null;
-	}
 
 	public Stream<ReportSummaryRow> getStream(final Date startDate, final int userId) {
 		eventQuery.setArguments(new Object[] { startDate, Integer.valueOf(userId) });
@@ -153,10 +83,10 @@ public class ReportSummaryQuery {
 			for (final Integer key : projects.keySet()) {
 				final ResolvedProject resolvedProjects = projects.get(key);
 				final List<ResolvedProject> path = resolvedProjects.getPath();
-				final List<ReportSummaryProject> reportProjects = new ArrayList<>();
+				final List<ReportProject> reportProjects = new ArrayList<>();
 				for (final ResolvedProject parentProject : path) {
 					reportProjects.add(
-						new ReportSummaryProject(parentProject.getId(), parentProject.getCode()));
+						new ReportProject(parentProject.getId(), parentProject.getCode()));
 				}
 				final int depth = reportProjects.size();
 				if (maxDepth < depth) {

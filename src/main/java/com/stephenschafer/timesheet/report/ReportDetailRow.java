@@ -1,5 +1,6 @@
 package com.stephenschafer.timesheet.report;
 
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -12,20 +13,13 @@ import lombok.ToString;
 @Setter
 @ToString
 @AllArgsConstructor
-public class ReportSummaryRow implements Comparable<ReportSummaryRow> {
+public class ReportDetailRow implements Comparable<ReportDetailRow> {
 	private final List<ReportProject> projects;
-	private final List<Long> durations;
-
-	public long getTotalDuration() {
-		long total = 0;
-		for (final Long duration : durations) {
-			total += duration.longValue();
-		}
-		return total;
-	}
+	private final Date time;
+	private final long duration;
 
 	@Override
-	public int compareTo(final ReportSummaryRow that) {
+	public int compareTo(final ReportDetailRow that) {
 		final Iterator<ReportProject> thisIter = this.projects.iterator();
 		final Iterator<ReportProject> thatIter = that.projects.iterator();
 		while (thisIter.hasNext()) {

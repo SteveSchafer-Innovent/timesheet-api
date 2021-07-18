@@ -70,5 +70,39 @@ select * from project_date;
 select max(id) from netsuite_event;
 select * from file where id > 131;
 select * from upload;
-select * from netsuite_event where id > 2077;
+select * from netsuite_event where notes like '%mantis%1218%';
+create table netsuite_event_1218 like netsuite_event;
+insert into netsuite_event_1218 select * from netsuite_event where notes like '%mantis%1218%';
+select * from netsuite_event_1218;
+alter table netsuite_event_1218 add comma_count int;
+alter table netsuite_event drop comma_count;
+select notes, hours, length(notes) - length(replace(notes, ',', '')) from netsuite_event_1218;
+update netsuite_event_1218 set comma_count = length(notes) - length(replace(notes, ',', ''));
+select hours, hours / (comma_count + 1) from netsuite_event_1218;
+select sum(hours), sum(hours / (comma_count + 1)) from netsuite_event_1218;
 
+select * from project where code = '1218'
+and parent_id = (select id from project where code = 'mantis'
+and parent_id = (select id from project where code = 'boonli' 
+and parent_id = (select id from project where code = 'innovent')))
+;
+
+select * from event e
+inner join ((select event_id from event_project 
+where project_id = (select id from project where code = '1218'
+and parent_id = (select id from project where code = 'mantis'
+and parent_id = (select id from project where code = 'boonli' 
+and parent_id = (select id from project where code = 'innovent')))))) ep
+on e.id = ep.event_id
+order by e.time;
+
+select max(id) from event;
+ALTER TABLE timesheet.project ADD bigtime_project_id INT;
+describe timesheet.project;
+
+select * from netsuite_event;
+select sum(hours) from netsuite_event where date = '2021-04-08';
+select date, sum(hours) from netsuite_event group by date order by date;
+
+alter table project add minimum_billable_hours float;
+alter table project add round_daily_hours_to float;
