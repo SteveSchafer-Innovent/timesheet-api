@@ -21,7 +21,7 @@ while (( "$#" )); do
 	esac
 	shift
 done
-JVM_ARGS="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=$SUSPEND,address=8000"
+JVM_ARGS="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=$SUSPEND,address=8004"
 # JAVA_HOME="/usr/lib/jvm/java-11-openjdk"
 $JAVA_HOME/bin/java $JVM_ARGS -jar $(find target -name "*.jar") $ARGS\
  --server.port=$PORT\

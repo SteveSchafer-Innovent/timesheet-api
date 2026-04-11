@@ -11,6 +11,7 @@ import org.joda.time.Days;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.stephenschafer.timesheet.EventRow;
+import com.stephenschafer.timesheet.RawProject;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,7 +34,10 @@ public class ReportQuery {
 		}
 		final ResolvedProject parent = rawProject.isRoot() ? null
 			: resolveProject(getProject(rawProject.getParentId()));
-		return new ResolvedProject(rawProject.getId(), parent, rawProject.getCode());
+		return new ResolvedProject(rawProject.getId(), parent, rawProject.getCode(),
+				rawProject.getMinDuration(), rawProject.getRound(),
+				rawProject.getBigtimeProjectId(), rawProject.getBigtimeTaskId(),
+				rawProject.getBigtimeDescription());
 	}
 
 	protected ResolvedProjectList getProjectsForEvent(final int eventId) {

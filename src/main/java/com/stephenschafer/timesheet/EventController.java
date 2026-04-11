@@ -102,6 +102,33 @@ public class EventController {
 				eventService.findByDay(day, user.getId()));
 	}
 
+	@GetMapping("/raw-events/{dateString}")
+	@ResponseBody
+	public ApiResponse<List<RawEvent>> getRawEvents(
+			@PathVariable(required = true) final String dateString,
+			final HttpServletRequest request) throws ParseException {
+		log.info("GET /raw-events dateString=" + dateString);
+		final String username = (String) request.getAttribute("username");
+		final UserEntity user = userService.findByUsername(username);
+		final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		final Date day = df.parse(dateString);
+		return new ApiResponse<>(HttpStatus.OK.value(), "Event list fetched successfully.",
+				eventService.findRawEventsByDay(day, user.getId()));
+	}
+
+	@GetMapping("/last-projects/{count}")
+	@ResponseBody
+	public ApiResponse<List<List<Integer>>> getLastProjects(
+			@PathVariable(required = true) final int count, final HttpServletRequest request)
+			throws ParseException {
+		log.info("GET /last-nonpersonal-projects count=" + count);
+		final String username = (String) request.getAttribute("username");
+		final UserEntity user = userService.findByUsername(username);
+		final Date dateTime = new Date();
+		return new ApiResponse<>(HttpStatus.OK.value(), "Event list fetched successfully.",
+				eventService.getLastProjects(dateTime, count, user.getId()));
+	}
+
 	@GetMapping("/event/{id}")
 	@ResponseBody
 	public ApiResponse<EditedEventWithAncestry> getEvent(

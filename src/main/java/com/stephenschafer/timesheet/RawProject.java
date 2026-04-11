@@ -1,16 +1,28 @@
-package com.stephenschafer.timesheet.report;
+package com.stephenschafer.timesheet;
 
 public class RawProject implements Comparable<RawProject> {
 	private final int id;
 	private final boolean isRoot;
 	private final int parentId;
 	private final String code;
+	private final long minDuration;
+	private final long round;
+	private final int bigtimeProjectId;
+	private final int bigtimeTaskId;
+	private final String bigtimeDescription;
 
-	public RawProject(final int id, final boolean isRoot, final int parentId, final String code) {
+	public RawProject(final int id, final boolean isRoot, final int parentId, final String code,
+			final long minDuration, final long round, final int bigtimeProjectId,
+			final int bigtimeTaskId, final String bigtimeDescription) {
 		this.id = id;
 		this.isRoot = isRoot;
 		this.parentId = parentId;
 		this.code = code;
+		this.minDuration = minDuration;
+		this.round = round;
+		this.bigtimeProjectId = bigtimeProjectId;
+		this.bigtimeTaskId = bigtimeTaskId;
+		this.bigtimeDescription = bigtimeDescription;
 	}
 
 	public int getId() {
@@ -60,5 +72,25 @@ public class RawProject implements Comparable<RawProject> {
 			return -1;
 		}
 		return 0;
+	}
+
+	public long getMinDuration() {
+		return minDuration;
+	}
+
+	public long getRound() {
+		return round;
+	}
+
+	public int getBigtimeProjectId() {
+		return bigtimeProjectId;
+	}
+
+	public int getBigtimeTaskId() {
+		return bigtimeTaskId;
+	}
+
+	public String getBigtimeDescription() {
+		return bigtimeDescription;
 	}
 }

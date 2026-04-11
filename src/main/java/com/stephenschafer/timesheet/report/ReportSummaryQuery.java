@@ -85,8 +85,11 @@ public class ReportSummaryQuery extends ReportQuery {
 				final List<ResolvedProject> path = resolvedProjects.getPath();
 				final List<ReportProject> reportProjects = new ArrayList<>();
 				for (final ResolvedProject parentProject : path) {
-					reportProjects.add(
-						new ReportProject(parentProject.getId(), parentProject.getCode()));
+					reportProjects.add(new ReportProject(parentProject.getId(),
+							parentProject.getCode(), parentProject.getMinDuration(),
+							parentProject.getRound(), parentProject.getBigtimeProjectId(),
+							parentProject.getBigtimeTaskId(),
+							parentProject.getBigtimeDescription()));
 				}
 				final int depth = reportProjects.size();
 				if (maxDepth < depth) {

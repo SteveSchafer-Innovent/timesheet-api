@@ -63,8 +63,11 @@ public class ReportDetailQuery extends ReportQuery {
 				final List<ResolvedProject> path = eventProject.getPath();
 				final List<ReportProject> reportProjects = new ArrayList<>();
 				for (final ResolvedProject parentProject : path) {
-					reportProjects.add(
-						new ReportProject(parentProject.getId(), parentProject.getCode()));
+					reportProjects.add(new ReportProject(parentProject.getId(),
+							parentProject.getCode(), parentProject.getMinDuration(),
+							parentProject.getRound(), parentProject.getBigtimeProjectId(),
+							parentProject.getBigtimeTaskId(),
+							parentProject.getBigtimeDescription()));
 				}
 				final ReportDetailRow row = new ReportDetailRow(reportProjects,
 						new Date(event.getTime()), projectEventDuration);

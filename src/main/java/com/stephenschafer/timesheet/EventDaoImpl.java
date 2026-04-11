@@ -6,6 +6,7 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Date;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,5 +120,38 @@ public class EventDaoImpl implements EventDao {
 		return jdbcTemplate.queryForObject(sql, new Object[] { id }, (rs, rowNum) -> {
 			return Optional.of(rs.getInt(1));
 		});
+	}
+
+	@Override
+	public void getEvents(final Date dateTime, final int count, final int userId,
+			final Consumer<Event> consumer) {
+		final PreparedStatementHolder holder = new PreparedStatementHolder();
+		final String sql = "select id, time, offset, user, comment from event where time <= ? and user = ? order by time desc";
+		final PreparedStatementCreator creator = connection -> {
+			holder.statement = connection.prepareStatement(sql);
+			holder.statement.setTimestamp(1, new Timestamp(dateTime.getTime()));
+			holder.statement.setInt(2, userId);
+			return holder.statement;
+		};
+		final AtomicInteger counter = new AtomicInteger();
+		try {
+			jdbcTemplate.query(creator, rs -> {
+				if (counter.getAndIncrement() > count) {
+					throw new StopException();
+				}
+				final Timestamp timestamp = rs.getTimestamp(2);
+				log.info("timestamp = " + timestamp);
+				consumer.accept(new Event(rs.getInt(1), timestamp, rs.getInt(3), rs.getInt(4),
+						rs.getString(5)));
+			});
+		}
+		catch (final StopException e) {
+			try {
+				holder.statement.cancel();
+			}
+			catch (final SQLException e1) {
+				log.error("getByDate failed", e1);
+			}
+		}
 	}
 }

@@ -12,4 +12,9 @@ import lombok.ToString;
 public class ReportProject {
 	private int id;
 	private String code;
+	private long minDuration;
+	private long round;
+	private int bigtimeProjectId;
+	private int bigtimeTaskId;
+	private String bigtimeDescription;
 }

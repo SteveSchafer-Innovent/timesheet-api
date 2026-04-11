@@ -79,8 +79,9 @@ public class ProjectController {
 	@ResponseBody
 	public ApiResponse<ProjectEntity> getProject(@PathVariable(required = true) final Integer id) {
 		log.info("GET /project/" + id);
-		return new ApiResponse<>(HttpStatus.OK.value(), "Project fetched successfully.",
-				projectService.findById(id));
+		final ProjectEntity entity = projectService.findById(id);
+		log.info("entity = " + entity);
+		return new ApiResponse<>(HttpStatus.OK.value(), "Project fetched successfully.", entity);
 	}
 
 	@GetMapping("/project/ancestry/{id}")

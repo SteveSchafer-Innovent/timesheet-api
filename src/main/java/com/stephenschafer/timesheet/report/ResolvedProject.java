@@ -17,22 +17,39 @@ public class ResolvedProject implements Comparable<ResolvedProject> {
 	private final int id;
 	private final ResolvedProject parent;
 	private final String code;
+	private final long minDuration;
+	private final long round;
+	private final int bigtimeProjectId;
+	private final int bigtimeTaskId;
+	private final String bigtimeDescription;
 	private final Map<Date, AtomicLong> dateTotals = new HashMap<>();
 	private final AtomicInteger count = new AtomicInteger(0);
 
-	public ResolvedProject(final int id, final ResolvedProject parent, final String code) {
+	public ResolvedProject(final int id, final ResolvedProject parent, final String code,
+			final long minDuration, final long round, final int bigtimeProjectId,
+			final int bigtimeTaskId, final String bigtimeDescription) {
 		this.id = id;
 		this.parent = parent;
 		if (code == null) {
 			throw new NullPointerException("code may not be null");
 		}
 		this.code = code;
+		this.minDuration = minDuration;
+		this.round = round;
+		this.bigtimeProjectId = bigtimeProjectId;
+		this.bigtimeTaskId = bigtimeTaskId;
+		this.bigtimeDescription = bigtimeDescription;
 	}
 
 	private ResolvedProject(final ResolvedProject original) {
 		this.id = original.id;
 		this.parent = original.parent == null ? null : new ResolvedProject(original.parent);
 		this.code = original.code;
+		this.minDuration = original.minDuration;
+		this.round = original.round;
+		this.bigtimeProjectId = original.bigtimeProjectId;
+		this.bigtimeTaskId = original.bigtimeTaskId;
+		this.bigtimeDescription = original.bigtimeDescription;
 		for (final Date key : original.dateTotals.keySet()) {
 			final AtomicLong value = original.dateTotals.get(key);
 			this.dateTotals.put(key, new AtomicLong(value.get()));
@@ -218,5 +235,25 @@ public class ResolvedProject implements Comparable<ResolvedProject> {
 			map.put(date, Long.valueOf(value.get()));
 		}
 		return map;
+	}
+
+	public long getMinDuration() {
+		return minDuration;
+	}
+
+	public long getRound() {
+		return round;
+	}
+
+	public int getBigtimeProjectId() {
+		return bigtimeProjectId;
+	}
+
+	public int getBigtimeTaskId() {
+		return bigtimeTaskId;
+	}
+
+	public String getBigtimeDescription() {
+		return bigtimeDescription;
 	}
 }

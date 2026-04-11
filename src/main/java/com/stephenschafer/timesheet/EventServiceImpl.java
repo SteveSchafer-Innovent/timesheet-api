@@ -61,6 +61,38 @@ public class EventServiceImpl implements EventService {
 		return reportEvents;
 	}
 
+	@Override
+	public List<RawEvent> findRawEventsByDay(final Date date, final int userId) {
+		final Date day = getMidnight(date);
+		final Date nextDay = getNextDay(day);
+		final AtomicBoolean oneExtra = new AtomicBoolean(false);
+		final List<Event> events = new ArrayList<>();
+		eventDao.getByDate(day, userId, event -> {
+			if (event.getDatetime().before(nextDay)) {
+				events.add(event);
+			}
+			else if (!oneExtra.get()) {
+				oneExtra.set(true);
+				events.add(event);
+			}
+			else {
+				throw new StopException();
+			}
+		});
+		final List<RawEvent> rawEvents = new ArrayList<>();
+		Event prevEventEntity = null;
+		for (final Event event : events) {
+			if (prevEventEntity != null && prevEventEntity.getDatetime().before(nextDay)) {
+				rawEvents.add(getRawEvent(event, prevEventEntity));
+			}
+			prevEventEntity = event;
+		}
+		if (prevEventEntity != null && prevEventEntity.getDatetime().before(nextDay)) {
+			rawEvents.add(getRawEvent(null, prevEventEntity));
+		}
+		return rawEvents;
+	}
+
 	private ReportEvent getReportEvent(final Event nextEvent, final Event prevEvent) {
 		final long nextTime = nextEvent == null ? System.currentTimeMillis()
 			: nextEvent.getDatetime().getTime();
@@ -68,6 +100,16 @@ public class EventServiceImpl implements EventService {
 		final List<Integer> projectIds = getProjectIds(prevEvent.getId());
 		final List<List<String>> projects = getProjectNames(projectIds);
 		return new ReportEvent(prevEvent.getId(), prevEvent.getDatetime(), duration,
+				prevEvent.getComment(), projects);
+	}
+
+	private RawEvent getRawEvent(final Event nextEvent, final Event prevEvent) {
+		final long nextTime = nextEvent == null ? System.currentTimeMillis()
+			: nextEvent.getDatetime().getTime();
+		final long duration = nextTime - prevEvent.getDatetime().getTime();
+		final List<Integer> projectIds = getProjectIds(prevEvent.getId());
+		final List<List<RawProject>> projects = getRawProjects(projectIds);
+		return new RawEvent(prevEvent.getId(), prevEvent.getDatetime(), duration,
 				prevEvent.getComment(), projects);
 	}
 
@@ -119,6 +161,16 @@ public class EventServiceImpl implements EventService {
 		return result;
 	}
 
+	private List<List<RawProject>> getRawProjects(final List<Integer> projectIds) {
+		log.info("getRawProjects projectIds = " + projectIds);
+		final List<List<RawProject>> result = new ArrayList<>();
+		for (final Integer projectId : projectIds) {
+			final List<RawProject> projectNames = getRawProjects(projectId);
+			result.add(projectNames);
+		}
+		return result;
+	}
+
 	private List<Integer> getProjectAncestry(final Integer projectId) {
 		final List<Integer> result = new ArrayList<>();
 		addProjectAncestry(projectId, result);
@@ -141,6 +193,55 @@ public class EventServiceImpl implements EventService {
 			}
 			else {
 				list.add("Unknown id " + projectId);
+			}
+		}
+	}
+
+	private List<RawProject> getRawProjects(final Integer projectId) {
+		final List<RawProject> result = new ArrayList<>();
+		addRawProject(projectId, result);
+		return result;
+	}
+
+	private void addRawProject(final Integer projectId, final List<RawProject> list) {
+		if (projectId != null) {
+			final Optional<ProjectEntity> optionalProjectEntity = projectDao.findById(projectId);
+			if (optionalProjectEntity.isPresent()) {
+				final ProjectEntity projectEntity = optionalProjectEntity.get();
+				addRawProject(projectEntity.getParentId(), list);
+				final Double minimumBillableHoursDbl = projectEntity.getMinimumBillableHours();
+				final double minimumBillableHours = minimumBillableHoursDbl == null ? 0.0
+					: minimumBillableHoursDbl.doubleValue();
+				final Double roundDailyHoursToDbl = projectEntity.getRoundDailyHoursTo();
+				final double roundDailyHoursTo = roundDailyHoursToDbl == null ? 0.0
+					: roundDailyHoursToDbl.doubleValue();
+				final double minDurationDbl = minimumBillableHours * 60.0 * 60.0 * 1000.0;
+				final double roundDbl = roundDailyHoursTo * 60.0 * 60.0 * 1000.0;
+				final Integer bigtimeProjectIdInt = projectEntity.getBigtimeProjectId();
+				final int bigtimeProjectId = bigtimeProjectIdInt == null ? 0
+					: bigtimeProjectIdInt.intValue();
+				final Integer bigtimeTaskIdInt = projectEntity.getBigtimeTaskId();
+				final int bigtimeTaskId = bigtimeTaskIdInt == null ? 0
+					: bigtimeTaskIdInt.intValue();
+				final String bigtimeDescription = projectEntity.getBigtimeDescription();
+				final Integer idInt = projectEntity.getId();
+				final int id = idInt == null ? 0 : idInt.intValue();
+				final Integer parentIdInt = projectEntity.getParentId();
+				boolean isRoot = false;
+				int parentId;
+				if (parentIdInt == null) {
+					isRoot = true;
+					parentId = 0;
+				}
+				else {
+					isRoot = false;
+					parentId = parentIdInt.intValue();
+				}
+				final RawProject rawProject = new RawProject(id, isRoot, parentId,
+						projectEntity.getCode(), Double.valueOf(minDurationDbl).longValue(),
+						Double.valueOf(roundDbl).longValue(), bigtimeProjectId, bigtimeTaskId,
+						bigtimeDescription);
+				list.add(rawProject);
 			}
 		}
 	}
@@ -217,5 +318,20 @@ public class EventServiceImpl implements EventService {
 			final int insertCount = insertQuery.executeUpdate();
 			log.info("eventProjects projects inserted = " + insertCount);
 		}
+	}
+
+	@Override
+	public List<List<Integer>> getLastProjects(final Date dateTime, final int count,
+			final int userId) {
+		final List<Event> events = new ArrayList<>();
+		eventDao.getEvents(dateTime, count, userId, event -> {
+			events.add(event);
+		});
+		final List<List<Integer>> result = new ArrayList<>();
+		for (final Event event : events) {
+			final List<Integer> projectIds = getProjectIds(event.getId());
+			result.add(projectIds);
+		}
+		return result;
 	}
 }

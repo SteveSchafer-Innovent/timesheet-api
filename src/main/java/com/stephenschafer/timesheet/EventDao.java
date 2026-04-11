@@ -15,5 +15,7 @@ public interface EventDao {
 
 	void getByDate(Date startDate, int userId, Consumer<Event> consumer);
 
+	void getEvents(Date dateTime, int count, int userId, Consumer<Event> consumer);
+
 	Optional<Integer> countOfEventsByProject(int id);
 }
