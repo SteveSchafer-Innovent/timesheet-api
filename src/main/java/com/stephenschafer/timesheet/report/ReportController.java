@@ -46,18 +46,22 @@ public class ReportController {
 	@Autowired
 	ProjectDateDao projectDateDao;
 
-	@GetMapping("/week/{dateString}")
+	@GetMapping("/week/{dateString}/{dayCount}")
 	@ResponseBody
 	public ApiResponse<List<ReportSummaryRow>> getRows(
 			@PathVariable(required = true) final String dateString,
-			final HttpServletRequest request) throws ParseException {
-		log.info("GET /report/week/" + dateString);
+			@PathVariable(required = false) Integer dayCount, final HttpServletRequest request)
+			throws ParseException {
+		log.info("GET /report/week/" + dateString + "/" + dayCount);
 		final String username = (String) request.getAttribute("username");
 		final UserEntity user = userService.findByUsername(username);
 		final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 		final Date day = df.parse(dateString);
+		if (dayCount == null) {
+			dayCount = Integer.valueOf(7);
+		}
 		final ReportSummaryQuery query = reportSummaryQuery;
-		final Stream<ReportSummaryRow> stream = query.getStream(day, user.getId());
+		final Stream<ReportSummaryRow> stream = query.getStream(day, dayCount, user.getId());
 		final List<ReportSummaryRow> list = stream.collect(Collectors.toList());
 		return new ApiResponse<>(HttpStatus.OK.value(), "Success", list);
 	}

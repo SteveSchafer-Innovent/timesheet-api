@@ -31,7 +31,7 @@ public class EventDaoImpl implements EventDao {
 	@Override
 	public Optional<Event> findById(final int id) {
 		return jdbcTemplate.queryForObject(
-			"select time, offset, user, comment from event where id = ?", new Object[] { id },
+			"select time, `offset`, user, comment from event where id = ?", new Object[] { id },
 			(rs, rowNum) -> {
 				return Optional.of(
 					new Event(id, rs.getTimestamp(1), rs.getInt(2), rs.getInt(3), rs.getString(4)));
@@ -42,7 +42,7 @@ public class EventDaoImpl implements EventDao {
 	public Event add(final Event event) {
 		log.info("add event");
 		final PreparedStatementCreatorFactory factory = new PreparedStatementCreatorFactory(
-				"insert into event (time, comment, offset, user) values (?, ?, ?, ?)",
+				"insert into event (time, comment, `offset`, user) values (?, ?, ?, ?)",
 				Types.TIMESTAMP, Types.VARCHAR, Types.INTEGER, Types.INTEGER);
 		factory.setReturnGeneratedKeys(true);
 		factory.setGeneratedKeysColumnNames("id");
@@ -65,7 +65,7 @@ public class EventDaoImpl implements EventDao {
 	public void update(final Event event) {
 		log.info("EventDaoImpl.update " + event);
 		final PreparedStatementCreatorFactory factory = new PreparedStatementCreatorFactory(
-				"update event set time = ?, comment = ?, offset = ?, user = ? where id = ?",
+				"update event set time = ?, comment = ?, `offset` = ?, user = ? where id = ?",
 				Types.TIMESTAMP, Types.VARCHAR, Types.INTEGER, Types.INTEGER, Types.INTEGER);
 		PreparedStatementCreator creator;
 		try {
@@ -89,7 +89,7 @@ public class EventDaoImpl implements EventDao {
 	@Override
 	public void getByDate(final Date startDate, final int userId, final Consumer<Event> consumer) {
 		final PreparedStatementHolder holder = new PreparedStatementHolder();
-		final String sql = "select id, time, offset, user, comment from event where time >= ? and user = ? order by time";
+		final String sql = "select id, time, `offset`, user, comment from event where time >= ? and user = ? order by time";
 		final PreparedStatementCreator creator = connection -> {
 			holder.statement = connection.prepareStatement(sql);
 			holder.statement.setTimestamp(1, new Timestamp(startDate.getTime()));
@@ -126,7 +126,7 @@ public class EventDaoImpl implements EventDao {
 	public void getEvents(final Date dateTime, final int count, final int userId,
 			final Consumer<Event> consumer) {
 		final PreparedStatementHolder holder = new PreparedStatementHolder();
-		final String sql = "select id, time, offset, user, comment from event where time <= ? and user = ? order by time desc";
+		final String sql = "select id, time, `offset`, user, comment from event where time <= ? and user = ? order by time desc";
 		final PreparedStatementCreator creator = connection -> {
 			holder.statement = connection.prepareStatement(sql);
 			holder.statement.setTimestamp(1, new Timestamp(dateTime.getTime()));

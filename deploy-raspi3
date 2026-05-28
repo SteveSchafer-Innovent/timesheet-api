@@ -1,0 +1,5 @@
+#!/bin/sh
+cd "$(dirname "${BASH_SOURCE[0]}")"
+ssh elephant@raspi3 "./timesheet/backup-timesheet"
+scp $(find target -name "*.jar") elephant@raspi3:~/timesheet
+ssh elephant@raspi3 "./timesheet/start-timesheet"

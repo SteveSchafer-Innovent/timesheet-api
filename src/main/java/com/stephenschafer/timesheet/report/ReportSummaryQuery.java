@@ -25,10 +25,11 @@ public class ReportSummaryQuery extends ReportQuery {
 	private long start;
 	private long end;
 
-	public Stream<ReportSummaryRow> getStream(final Date startDate, final int userId) {
+	public Stream<ReportSummaryRow> getStream(final Date startDate, final Integer dayCount,
+			final int userId) {
 		eventQuery.setArguments(new Object[] { startDate, Integer.valueOf(userId) });
 		this.start = startDate.getTime();
-		this.end = addDays(start, 7); // start + 1000L * 60L * 60L * 24L * 7L; // a week
+		this.end = addDays(start, dayCount.intValue()); // start + 1000L * 60L * 60L * 24L * 7L; // a week
 		final AtomicBoolean oneExtra = new AtomicBoolean(false);
 		final EventHolder previousEventHolder = new EventHolder();
 		final Map<Integer, ResolvedProject> projects = new HashMap<>();

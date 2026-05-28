@@ -5,7 +5,7 @@ create table timesheet.event (
 	id int NOT NULL auto_increment,
 	time datetime NOT NULL,
 	comment text(65535),
-	offset tinyint(3) DEFAULT 0,
+	`offset` tinyint(3) DEFAULT 0,
 	user int NOT NULL,
 	datetime datetime,
 	PRIMARY KEY (id)
